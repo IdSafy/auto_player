@@ -11,6 +11,10 @@ class FilesGroup:
     def __init__(self, group_type: FilesGroupType):
         self.group_type = group_type
 
+    @property
+    def directory(self) -> Path:
+        raise Exception("Not implemeted")
+
     def __getitem__(self, key: int) -> Path:
         raise Exception("Not implemeted")
 

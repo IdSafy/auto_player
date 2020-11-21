@@ -19,8 +19,24 @@ class StatefullShowWrapper:
     def set_counter(self, counter: int = 0) -> None:
         self.counter = counter
 
+    @property
+    def name(self):
+        return self.show.name
+
     def __getitem__(self, key: int) -> EpisodeSet:
         return self.show[key]
 
     def __len__(self) -> int:
         return len(self.show)
+
+    @property
+    def video_group(self):
+        return self.show.video_group
+
+    @property
+    def audio_group(self):
+        return self.show.audio_group
+
+    @property
+    def subtitles_group(self):
+        return self.show.subtitles_group
