@@ -15,3 +15,6 @@ class State:
     def get_show_by_name(self, name: str) -> Optional[StatefullShowWrapper]:
         show = next((show for show in self.shows if show.name == name), None)
         return show
+
+    def is_empty(self) -> bool:
+    	return len(self.shows) == 0

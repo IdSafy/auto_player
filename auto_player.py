@@ -1,34 +1,71 @@
-import os
 import re
-import pickle
-import subprocess
-from typing import Union, Pattern, Iterator, List, Dict, Any, Optional
-from enum import Enum
+from typing import List, Dict, Any, Optional
 from pathlib import Path
-from dataclasses import dataclass, field
-
-import click
 
 from file_group import FilesGroupType, FilesGroup
 from file_group.RegexFileGroup import RegexFileGroup
-from show import Show, EpisodeSet
+from show import Show
 from show.statefull import StatefullShowWrapper
 from backend import Backend
-from backend.localfilebackend import LocalfileBackend
-from state import State
-from player import Player, PlayStatus
-DEFAULT_SESSION = "default"
+from player import Player
 
-BACKENDS_CLASSES: Dict[str, type] = {
-    LocalfileBackend.NAME: LocalfileBackend,
+FILE_GROUP_TYPES_PREFIXES = {
+    FilesGroupType.VIDEO: "video_",
+    FilesGroupType.AUDIO: "audio_",
+    FilesGroupType.SUBTITLES: "subtitles_",
 }
 
-def print_context_info(context: Dict[str, Any]) -> None:
-    backend = context["backend"]
-    session = context["session"]
-    print(f"Backend: {backend.NAME}")
-    print(f"Session: {session}")
-    print()
+class FileGroupFactory:
+    @property
+    def mandatory_options(self) -> List[str]:
+        return ["group_type"]
+
+    def create(self, options: Dict[str, Any]) -> FilesGroup:
+        ...
+
+class RegexFileGroupFactory(FileGroupFactory):
+    @property
+    def mandatory_options(self) -> List[str]:
+        return super().mandatory_options + ["regex", "dir"]
+
+    def create(self, options: Dict[str, Any]) -> RegexFileGroup:
+        group_type = options["group_type"]
+        directory = Path(options["dir"])
+        regex = re.compile(options["regex"])
+
+        regex_file_group = RegexFileGroup(
+            group_type=group_type,
+            directory=directory,
+            regex=regex,
+        )
+        return regex_file_group
+
+FILES_GROUPS_FACTORIES: List[FileGroupFactory] = [
+    RegexFileGroupFactory(),
+]
+
+def try_files_factories(options: Dict[str, Any]) -> Optional[FilesGroup]:
+    for factory in FILES_GROUPS_FACTORIES:
+        mandatory_options = factory.mandatory_options
+        fit = set(mandatory_options).issubset(set(options.keys()))
+        if fit:
+            files_group = factory.create(options)
+            return files_group
+    return None
+
+def filter_options(option: Dict[str, Any], files_type: FilesGroupType) -> Dict[str, Any]:
+    prefix = FILE_GROUP_TYPES_PREFIXES[files_type]
+    prefix_len = len(prefix)
+    filtered_options = dict((key[prefix_len:], value)
+        for key, value in option.items()
+        if key.startswith(prefix))
+    return filtered_options
+
+def make_files_group(group_type: FilesGroupType, **kwargs) -> Optional[FilesGroup]:
+    video_options = filter_options(kwargs, group_type)
+    video_options["group_type"] = group_type
+    video_group = try_files_factories(video_options)
+    return video_group
 
 class AutoPlayer:
     def __init__(self, backend: Backend, player: Player):
@@ -57,12 +94,25 @@ class AutoPlayer:
             number = -1
         if number > 0:
             return self.state.get_show_by_number(number)
-        else:
-            name = name_or_number
-            return self.state.get_show_by_name(name)
+        name = name_or_number
+        return self.state.get_show_by_name(name)
 
-    def add_show(self, name: str, **kwargs) -> None:
-        pass
+    def add_show(self, name: str, test: bool = False, **kwargs) -> StatefullShowWrapper:
+
+        video_group = make_files_group(group_type=FilesGroupType.VIDEO, **kwargs)
+        audio_group = make_files_group(group_type=FilesGroupType.AUDIO, **kwargs)
+        subtitles_group = make_files_group(group_type=FilesGroupType.SUBTITLES, **kwargs)
+        if video_group is None:
+            raise Exception("Please specify video files")
+        show = Show(name=name, video_group=video_group, audio_group=audio_group, subtitles_group=subtitles_group)
+
+        counter = kwargs["watched"]
+        statefull_show = StatefullShowWrapper(show=show, counter=counter)
+
+        if not test:
+            self.state.shows.append(statefull_show)
+            self.backend.save(self.state)
+        return statefull_show
 
     def modify_show(self, name_or_number: str, **kwargs) -> None:
         pass
@@ -76,102 +126,3 @@ class AutoPlayer:
 
     def get_show_info(self, name_or_number: str) -> Dict[str, Any]:
         pass
-
-def abort_if_false(ctx: click.core.Context, param: click.core.Option, value: bool) -> None:
-    if not value:
-        ctx.abort()
-
-@click.group()
-@click.option("--backend", "backend_name", default=LocalfileBackend.NAME, type=click.Choice(BACKENDS_CLASSES.keys()), help="Backend to use")
-@click.option("--session", default=DEFAULT_SESSION, help="Session to use. Data in sessions are isolated")
-@click.pass_context
-def cli(context: click.core.Context, backend_name: str, session: str):
-    backend_class = BACKENDS_CLASSES[backend_name]
-    backend = backend_class(session=session)
-    player = Player()
-    context.obj = AutoPlayer(backend, player)
-
-@cli.command(help="List show")
-@click.pass_obj
-def ls(obj: AutoPlayer):
-    app = obj
-    shows = app.list_shows()
-    for number, show in zip(range(1, len(shows) + 1), shows):
-        print(f"{number}. {show.name} [{show.counter}/{len(show)}]")
-
-@cli.command(help="Show info about show")
-@click.option('--full', is_flag=True, help="Show more info")
-@click.argument("name_or_number", default = "1", required=False)
-@click.pass_obj
-def info(obj: AutoPlayer, full: bool, name_or_number: str):
-    app = obj
-    show = app.get_show(name_or_number)
-    if show is None:
-        print("Unknown show")
-        return
-    def print_files_group(files_group: FilesGroup, name: str) -> None:
-        capitalized_name = name.capitalize()
-        print(f"{capitalized_name} files:")
-        if files_group is not None:
-            directory = files_group.directory
-            for path in files_group:
-                relative_path = path.relative_to(directory)
-                print(f"\t{relative_path}")
-        else:
-            print(None)
-        
-    print(f"Name: {show.name}")
-    print(f"Length: {len(show)}")
-    print(f"Watched: {show.counter}")
-    print_files_group(show.video_group, "video")
-    print_files_group(show.audio_group, "audio")
-    print_files_group(show.subtitles_group, "subtitles")
-
-@cli.command(help="Play next episode in show")
-@click.option("-e", '--episode', default = -1, type=click.INT, help="Number of episode to play. Won't change state")
-@click.option('--continuous', is_flag=True, help="Play next episode automatically")
-@click.argument("name_or_number", default = "1", required=False)
-@click.pass_obj
-def play(obj: AutoPlayer, continuous: bool, name_or_number: str, episode: int):
-    app = obj
-    app.play(name_or_number, episode)
-    # raise Exception(" Not implemented")
-
-@cli.command(help="Add show")
-@click.option('--video_dir', default=".", help="video root directory")
-@click.option('--video_regex', default=r".+\.(mkv|mp4)", help="Regex for video files")
-@click.option('--audio_dir', default=".", help="audio root directory")
-@click.option('--audio_regex', default=r".+\.(i don't remember audio resolutions)", help="Regex for audio files")
-@click.option('--subtitles_dir', default=".", help="subtitles root directory")
-@click.option('--subtitles_regex', default=r".+\.(ass|srt)", help="Regex for subtitles files")
-@click.option('--watched', default=0, help="How many episodes you have already watched")
-@click.argument("name", required=True)
-@click.pass_obj
-def add(obj: AutoPlayer, name: str, **kwargs):
-    app = obj
-    raise Exception(" Not implemented")
-
-@cli.command(help="Edit show")
-@click.option('--video_dir', default=".", help="video root directory")
-@click.option('--video_regex', default=r".+\.(mkv|mp4)", help="Regex for video files")
-@click.option('--audio_dir', default=".", help="audio root directory")
-@click.option('--audio_regex', default=r".+\.(i don't remember audio resolutions)", help="Regex for audio files")
-@click.option('--subtitles_dir', default=".", help="subtitles root directory")
-@click.option('--subtitles_regex', default=r".+\.(ass|srt)", help="Regex for subtitles files")
-@click.option('--watched', default=0, help="How many episodes you have already watched")
-@click.argument("name_or_number", default = "1", required=False)
-@click.pass_obj
-def edit(obj: AutoPlayer, name_or_number: str, **kwargs):
-    app = obj
-    raise Exception(" Not implemented")
-
-@cli.command(help="Delete show")
-@click.argument("name_or_number", default = "1", required=False)
-@click.option('--yes', is_flag=True, callback=abort_if_false, expose_value=False, prompt='Are you sure you want to remove the show?')
-@click.pass_obj
-def delete(obj: AutoPlayer, name_or_number: str):
-    app = obj
-    app.delete_show(name_or_number)
-
-if __name__ == "__main__":
-    cli()

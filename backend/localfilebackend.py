@@ -16,13 +16,17 @@ class LocalfileBackend(Backend):
 
     def save(self, state: State) -> None:
         filename = self._get_filename()
+        if state.is_empty():
+            os.remove(filename)
+            return
         with open(filename, "wb") as file:
             pickle.dump(state, file)
 
     def load(self) -> State:
         filename = self._get_filename()
         if not os.path.exists(filename):
-            return State()
-        with open(filename, "rb") as file:
-            state = pickle.load(file)
+            state = State()
+        else:
+            with open(filename, "rb") as file:
+                state = pickle.load(file)
         return state

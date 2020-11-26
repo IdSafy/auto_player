@@ -1,6 +1,8 @@
+from typing import Optional
 from dataclasses import dataclass
 
 from . import Show, EpisodeSet
+from file_group import FilesGroup
 
 @dataclass
 class StatefullShowWrapper:
@@ -30,13 +32,13 @@ class StatefullShowWrapper:
         return len(self.show)
 
     @property
-    def video_group(self):
+    def video_group(self) -> FilesGroup:
         return self.show.video_group
 
     @property
-    def audio_group(self):
+    def audio_group(self) -> Optional[FilesGroup]:
         return self.show.audio_group
 
     @property
-    def subtitles_group(self):
+    def subtitles_group(self) -> Optional[FilesGroup]:
         return self.show.subtitles_group
