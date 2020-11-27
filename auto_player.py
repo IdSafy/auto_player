@@ -1,3 +1,4 @@
+import os
 import re
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -81,8 +82,13 @@ class AutoPlayer:
             raise Exception("Unknown show")
         episode_set = show.next_episode() if episode_number == -1 else show[corrected_episode_number]
         status = self.player.play(episode_set)
-        if status.return_code == 0:
+        if not status.failed:
             self.backend.save(self.state)
+        else:
+            if status.error is not None:
+                raise status.error
+            else:
+                raise Exception("Failed to play episode")
 
     def list_shows(self) -> List[StatefullShowWrapper]:
         return self.state.shows

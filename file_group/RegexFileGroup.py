@@ -20,7 +20,7 @@ class RegexFileGroup(FilesGroup):
         return item
 
     def __iter__(self) -> Iterator[Path]:
-        files = self._directory.iterdir()
+        files = self.directory.iterdir()
         return (x for x in files if x.is_file() and self.regex.match(x.name))
 
     def __len__(self) -> int:

@@ -1,3 +1,4 @@
+import os
 from typing import Union, Any, Optional, Dict
 import click
 from click.core import Option, Parameter, Context
@@ -5,7 +6,7 @@ from click.core import Option, Parameter, Context
 from file_group import FilesGroup
 from show.statefull import StatefullShowWrapper
 from backend.localfilebackend import LocalfileBackend
-from player import Player
+from player import Player, EnvironmentPlayer
 from auto_player import AutoPlayer
 
 BACKENDS_CLASSES: Dict[str, type] = {
@@ -13,6 +14,8 @@ BACKENDS_CLASSES: Dict[str, type] = {
 }
 
 DEFAULT_SESSION = "default"
+
+PLAYER_RUN_STRING_ENV = "PLAYER_RUN_STRING"
 
 def abort_if_false(ctx: Context, _: Union[Option, Parameter], value: Any) -> Any:
     if not value:
@@ -47,7 +50,7 @@ def print_show_info(show: StatefullShowWrapper) -> None:
 def cli(context: Context, backend_name: str, session: str):
     backend_class = BACKENDS_CLASSES[backend_name]
     backend = backend_class(session=session)
-    player = Player()
+    player = EnvironmentPlayer()
     context.obj = AutoPlayer(backend, player)
 
 @cli.command(help="List show")
