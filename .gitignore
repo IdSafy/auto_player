@@ -2,3 +2,6 @@
 *.pyo
 .autoplayer*
 .coverage
+auto_player.egg-info/
+build/
+dist/
