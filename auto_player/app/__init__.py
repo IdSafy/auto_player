@@ -42,7 +42,7 @@ def get_class(class_path: str) -> type:
     module = importlib.import_module(class_module)
     class_object = getattr(module, class_name)
     return class_object
-    
+
 def create_backend(config: Dict[str, Any], session: str) -> Backend:
     backend_config = config["backend"]
     class_path = backend_config["class"]

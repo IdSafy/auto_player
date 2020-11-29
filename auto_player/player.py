@@ -46,7 +46,7 @@ class CunstuctorPlayer(Player):
         video_file_wrapper: List[str],
         audio_file_wrapper: List[str],
         subtitles_file_wrapper: List[str],
-        appendix: List[str] = []
+        appendix: List[str] = list()
     ):
         self.base = base
         self.video_file_wrapper = video_file_wrapper

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Union, List, Optional
+from typing import List, Optional
 
 from .show.statefull import StatefullShowWrapper
 
@@ -18,4 +18,4 @@ class State:
         return show
 
     def is_empty(self) -> bool:
-    	return len(self.shows) == 0
+        return len(self.shows) == 0

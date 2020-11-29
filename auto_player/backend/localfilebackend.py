@@ -7,9 +7,6 @@ from ..state import State
 class LocalfileBackend(Backend):
     NAME = "localfile"
 
-    def __init__(self, session: str):
-        super().__init__(session)
-
     def _get_filename(self) -> str:
         directory = os.getcwd()
         filename = f"{directory}//.autoplayer_{self.session}"

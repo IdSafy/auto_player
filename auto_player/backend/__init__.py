@@ -11,4 +11,3 @@ class Backend:
 
     def load(self) -> State:
         pass
-

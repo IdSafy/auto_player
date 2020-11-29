@@ -41,7 +41,7 @@ class ShowCommandWrapper:
                 relative_path = path.relative_to(directory)
                 file_info = OrderedDict()
                 file_info["path"] = str(path)
-                file_info["relative_path"] = str(relative_path) 
+                file_info["relative_path"] = str(relative_path)
                 group_info["files"].append(file_info)
             return group_info
         info["video_group"] = files_group_info(self.show.video_group)
@@ -69,7 +69,6 @@ class ShowCommandWrapper:
 
         if not test:
             self.app.save_state()
-        return None
 
 class AutoPlayer:
     def __init__(self, backend: Backend, player: Player):
@@ -88,11 +87,9 @@ class AutoPlayer:
         if not status.failed:
             self.save_state()
             return None
-        else:
-            if status.error is not None:
-                return Error(str(status.error))
-            else:
-                return Error("Failed to play episode")
+        if status.error is not None:
+            return Error(str(status.error))
+        return Error("Failed to play episode")
 
     def list_shows(self) -> List[StatefullShowWrapper]:
         return self.state.shows
@@ -122,7 +119,7 @@ class AutoPlayer:
             return Error("Video files not specified")
         if counter is None:
             counter = 0
-    
+   
         show = Show(name=name, video_group=video_group, audio_group=audio_group, subtitles_group=subtitles_group)
         statefull_show = StatefullShowWrapper(show=show, counter=counter)
 
@@ -135,7 +132,6 @@ class AutoPlayer:
     def delete_show(self, show: StatefullShowWrapper) -> Rezult[None]:
         self.state.shows.remove(show)
         self.backend.save(self.state)
-        return None
 
     def save_state(self) -> None:
         self.backend.save(self.state)
