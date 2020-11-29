@@ -2,7 +2,7 @@ from typing import Optional
 from dataclasses import dataclass
 
 from . import Show, EpisodeSet
-from file_group import FilesGroup
+from ..file_group import FilesGroup
 
 @dataclass
 class StatefullShowWrapper:

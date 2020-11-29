@@ -2,11 +2,11 @@ from collections import OrderedDict
 from typing import List, Dict, Any, Optional, TypeVar, Union
 from dataclasses import dataclass
 
-from file_group import FilesGroupType, FilesGroup
-from show import Show
-from show.statefull import StatefullShowWrapper
-from backend import Backend
-from player import Player
+from ..file_group import FilesGroupType, FilesGroup
+from ..show import Show
+from ..show.statefull import StatefullShowWrapper
+from ..backend import Backend
+from ..player import Player
 from .file_group_factory import make_files_group, make_counter
 
 T = TypeVar('T')

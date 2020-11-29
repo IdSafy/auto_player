@@ -2,8 +2,8 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Generic, TypeVar, Union
 
-from file_group import FilesGroupType, FilesGroup
-from file_group.RegexFileGroup import RegexFileGroup
+from ..file_group import FilesGroupType, FilesGroup
+from ..file_group.RegexFileGroup import RegexFileGroup
 
 FILE_GROUP_TYPES_PREFIXES = {
     FilesGroupType.VIDEO: "video_",

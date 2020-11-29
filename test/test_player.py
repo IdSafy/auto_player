@@ -1,7 +1,7 @@
 import pytest
 
-from player import CunstuctorPlayer
-from show import EpisodeSet
+from auto_player.player import CunstuctorPlayer
+from auto_player.show import EpisodeSet
 
 @pytest.fixture
 def dummy_constructor_player() -> CunstuctorPlayer:

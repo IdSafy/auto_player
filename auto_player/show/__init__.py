@@ -2,7 +2,7 @@ from typing import Union, Optional
 from pathlib import Path
 from dataclasses import dataclass
 
-from file_group import FilesGroup
+from ..file_group import FilesGroup
 
 # class PShow(Protocol):
 #     name: str

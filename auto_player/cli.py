@@ -4,11 +4,11 @@ import click
 from click.core import Option, Parameter, Context
 from pprint import pprint
 
-from file_group import FilesGroup
-from show.statefull import StatefullShowWrapper
-from backend.localfilebackend import LocalfileBackend
-from player import Player, EnvironmentPlayer
-from auto_player import AutoPlayer, create_auto_player, DEFAULT_CONFIG_PATH, Error, Rezult
+from .file_group import FilesGroup
+from .show.statefull import StatefullShowWrapper
+from .backend.localfilebackend import LocalfileBackend
+from .player import Player, EnvironmentPlayer
+from .app import AutoPlayer, create_auto_player, DEFAULT_CONFIG_PATH, Error, Rezult
 
 DEFAULT_SESSION = "default"
 
@@ -51,6 +51,7 @@ def command_rezult_handler(rezult: Rezult[T]) -> T:
 @click.pass_context
 def cli(context: Context, config_path: str, session: str):
     context.obj = create_auto_player(config_path=config_path, session=session)
+    print(context)
 
 @cli.command(help="List shows")
 @click.pass_obj

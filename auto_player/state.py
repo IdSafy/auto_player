@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Union, List, Optional
-from show.statefull import StatefullShowWrapper
+
+from .show.statefull import StatefullShowWrapper
 
 @dataclass
 class State:

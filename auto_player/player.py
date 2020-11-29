@@ -2,7 +2,8 @@ import os
 import subprocess
 from dataclasses import dataclass
 from typing import Union, Optional, List
-from show import EpisodeSet
+
+from .show import EpisodeSet
 
 @dataclass
 class PlayStatus:
