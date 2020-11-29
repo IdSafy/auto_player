@@ -1,7 +1,7 @@
 import os
 import subprocess
 from dataclasses import dataclass
-from typing import Union, Optional
+from typing import Union, Optional, List
 from show import EpisodeSet
 
 @dataclass
@@ -35,6 +35,39 @@ class EnvironmentPlayer(Player):
             return status
         command = player_string.format(episode=episode_set)
         process = subprocess.run(command, shell=True)
-        failed = True
+        failed = process.returncode != 0
+        status = PlayStatus(failed=failed, return_code=process.returncode)
+        return status
+
+class CunstuctorPlayer(Player):
+    def __init__(self,
+        base: List[str],
+        video_file_wrapper: List[str],
+        audio_file_wrapper: List[str],
+        subtitles_file_wrapper: List[str],
+        appendix: List[str] = []
+    ):
+        self.base = base
+        self.video_file_wrapper = video_file_wrapper
+        self.audio_file_wrapper = audio_file_wrapper
+        self.subtitles_file_wrapper = subtitles_file_wrapper
+        self.appendix = appendix
+
+    def _construct_command(self, episode_set: EpisodeSet) -> List[str]:
+        command = []
+        list_format = lambda l: list(map(lambda x: x.format(episode=episode_set), l))
+        command += list_format(self.base)
+        command += list_format(self.video_file_wrapper)
+        if episode_set.audio_file is not None:
+            command += list_format(self.audio_file_wrapper)
+        if episode_set.subtitles_file is not None:
+            command += list_format(self.subtitles_file_wrapper)
+        command += list_format(self.appendix)
+        return command
+
+    def play(self, episode_set: EpisodeSet) -> PlayStatus:
+        command = self._construct_command(episode_set)
+        process = subprocess.run(command)
+        failed = process.returncode != 0
         status = PlayStatus(failed=failed, return_code=process.returncode)
         return status
