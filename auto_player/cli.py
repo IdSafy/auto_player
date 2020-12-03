@@ -80,19 +80,19 @@ def play_command(obj: AutoPlayer, continuous: bool, name_or_number: str, episode
     command_rezult_handler(show.play(episode))
 
 @cli.command("add", help="Add show")
-@click.option('--video_dir', default=".",
+@click.option('--video_dir', "--vd", default=".",
     help="video root directory")
-@click.option('--video_regex', default=r".+\.(mkv|mp4)",
+@click.option('--video_regex', "--vx", default=r".+\.(mkv|mp4)",
     help="Regex for video files")
-@click.option('--audio_dir', default=".",
+@click.option('--audio_dir', "--ad", default=".",
     help="audio root directory")
-@click.option('--audio_regex', default=r".+\.(i don't remember audio resolutions)",
+@click.option('--audio_regex', "--ax", default=r".+\.(i don't remember audio resolutions)",
     help="Regex for audio files")
-@click.option('--subtitles_dir', default=".",
+@click.option('--subtitles_dir', "--sd", default=".",
     help="subtitles root directory")
-@click.option('--subtitles_regex', default=r".+\.(ass|srt)",
+@click.option('--subtitles_regex', "--sx", default=r".+\.(ass|srt)",
     help="Regex for subtitles files")
-@click.option('--watched', default=0,
+@click.option("-w", '--watched', default=0,
     help="How many episodes you have already watched")
 @click.option('--test', default=False, is_flag=True,
     help="Print finded files but not add to state")
