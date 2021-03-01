@@ -46,7 +46,6 @@ def command_rezult_handler(rezult: Rezult[T]) -> T:
 @click.pass_context
 def cli(context: Context, config_path: str, session: str):
     context.obj = create_auto_player(config_path=config_path, session=session)
-    print(context)
 
 @cli.command("list", help="List shows")
 @click.pass_obj
@@ -80,21 +79,21 @@ def play_command(obj: AutoPlayer, continuous: bool, name_or_number: str, episode
     command_rezult_handler(show.play(episode))
 
 @cli.command("add", help="Add show")
-@click.option('--video_dir', "--vd", default=".",
+@click.option('-v', '--video_dir', "--vd", default=".",
     help="video root directory")
 @click.option('--video_regex', "--vx", default=r".+\.(mkv|mp4)",
     help="Regex for video files")
-@click.option('--audio_dir', "--ad", default=".",
+@click.option('-a', '--audio_dir', "--ad", default=".",
     help="audio root directory")
 @click.option('--audio_regex', "--ax", default=r".+\.(i don't remember audio resolutions)",
     help="Regex for audio files")
-@click.option('--subtitles_dir', "--sd", default=".",
+@click.option('-s', '--subtitles_dir', "--sd", default=".",
     help="subtitles root directory")
 @click.option('--subtitles_regex', "--sx", default=r".+\.(ass|srt)",
     help="Regex for subtitles files")
 @click.option("-w", '--watched', default=0,
     help="How many episodes you have already watched")
-@click.option('--test', default=False, is_flag=True,
+@click.option('-t', '--test', default=False, is_flag=True,
     help="Print finded files but not add to state")
 @click.argument("name", required=True)
 @click.pass_obj
@@ -106,21 +105,21 @@ def add_command(obj: AutoPlayer, test: bool, name: str, **kwargs):
     print_show_info(info)
 
 @cli.command("edit", help="Edit show")
-@click.option('--video_dir', default=".",
+@@click.option('-v', '--video_dir', "--vd", default=".",
     help="video root directory")
-@click.option('--video_regex', default=r".+\.(mkv|mp4)",
+@click.option('--video_regex', "--vx", default=r".+\.(mkv|mp4)",
     help="Regex for video files")
-@click.option('--audio_dir', default=".",
+@click.option('-a', '--audio_dir', "--ad", default=".",
     help="audio root directory")
-@click.option('--audio_regex', default=r".+\.(i don't remember audio resolutions)",
+@click.option('--audio_regex', "--ax", default=r".+\.(i don't remember audio resolutions)",
     help="Regex for audio files")
-@click.option('--subtitles_dir', default=".",
+@click.option('-s', '--subtitles_dir', "--sd", default=".",
     help="subtitles root directory")
-@click.option('--subtitles_regex', default=r".+\.(ass|srt)",
+@click.option('--subtitles_regex', "--sx", default=r".+\.(ass|srt)",
     help="Regex for subtitles files")
-@click.option('--watched', default=0,
+@click.option("-w", '--watched', default=0,
     help="How many episodes you have already watched")
-@click.option('--test', default=False, is_flag=True,
+@click.option('-t', '--test', default=False, is_flag=True,
     help="Print finded files but not add to state")
 @click.argument("name_or_number", default = "1", required=False)
 @click.pass_obj

@@ -12,4 +12,7 @@ setup(
         [console_scripts]
         auto_player=auto_player.cli:cli
     ''',
+    data_files=[
+      ('/etc/bash_completion.d/', ['extra/completion_script/auto_player']),
+    ],
 )
