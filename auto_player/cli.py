@@ -105,7 +105,7 @@ def add_command(obj: AutoPlayer, test: bool, name: str, **kwargs):
     print_show_info(info)
 
 @cli.command("edit", help="Edit show")
-@@click.option('-v', '--video_dir', "--vd", default=".",
+@click.option('-v', '--video_dir', "--vd", default=".",
     help="video root directory")
 @click.option('--video_regex', "--vx", default=r".+\.(mkv|mp4)",
     help="Regex for video files")
