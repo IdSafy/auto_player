@@ -70,6 +70,8 @@ class ShowCommandWrapper:
         if not test:
             self.app.save_state()
 
+        return None
+
 class AutoPlayer:
     def __init__(self, backend: Backend, player: Player):
         self.backend = backend
@@ -132,6 +134,7 @@ class AutoPlayer:
     def delete_show(self, show: StatefullShowWrapper) -> Rezult[None]:
         self.state.shows.remove(show)
         self.backend.save(self.state)
+        return None
 
     def save_state(self) -> None:
         self.backend.save(self.state)
