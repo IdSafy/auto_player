@@ -76,7 +76,14 @@ def info_command(obj: AutoPlayer, full: bool, name_or_number: str):
 def play_command(obj: AutoPlayer, continuous: bool, name_or_number: str, episode: int):
     app = obj
     show = command_rezult_handler(app.get_show(name_or_number))
+    info = command_rezult_handler(show.info())
+    episode_number_str = "next" if episode == -1 else str(episode)
+    show_name = info["name"]
+    print(f"Playing {episode_number_str} episode...")
     command_rezult_handler(show.play(episode))
+    info = command_rezult_handler(show.info())
+    if info["length"] == info["watched"] and episode != -1:
+        print(f"\nNo more episodes left. You have completed \"{show_name}\"!")
 
 @cli.command("add", help="Add show")
 @click.option('-v', '--video_dir', "--vd", default=".",
