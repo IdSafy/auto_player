@@ -82,6 +82,7 @@ def play_command(obj: AutoPlayer, continuous: bool, name_or_number: str, episode
     print(f"Playing {episode_number_str} episode...")
     command_rezult_handler(show.play(episode))
     info = command_rezult_handler(show.info())
+    print(f"Watched {info['watched']} episodes out of {info['length']}.")
     if info["length"] == info["watched"] and episode != -1:
         print(f"\nNo more episodes left. You have completed \"{show_name}\"!")
 
