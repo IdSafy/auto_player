@@ -5,3 +5,5 @@
 auto_player.egg-info/
 build/
 dist/
+.venv/
+venv/

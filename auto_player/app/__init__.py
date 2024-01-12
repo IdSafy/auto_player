@@ -12,24 +12,25 @@ DEFAULT_CONFIG_PATH = f"{Path.home()}/.autoplayer"
 
 DEFAULT_CONFIG = {
     "backend": {
-        "class": "backend.localfile.LocalfileBackend",
+        "class": "auto_player.backend.localfilebackend.LocalfileBackend",
         "params": {},
     },
-    # "player": {
-    #     "class": "player.CunstuctorPlayer",
-    #     "params": {
-    #         "base": ["echo"],
-    #         "video_file_wrapper": ["{episode.video_file}"],
-    #         "audio_file_wrapper": ["{episode.audio_file}"],
-    #         "subtitles_file_wrapper": ["{episode.subtitles_file}"],
-    #         "appendix": [],
-    #     },
-    # },
+     "player": {
+         "class": "auto_player.player.CunstuctorPlayer",
+         "params": {
+             "base": ["echo"],
+             "video_file_wrapper": ["{episode.video_file}"],
+             "audio_file_wrapper": ["{episode.audio_file}"],
+             "subtitles_file_wrapper": ["{episode.subtitles_file}"],
+             "appendix": [],
+         },
+     },
 }
 
 def read_config(config_path: str) -> Dict[str, Any]:
     if not os.path.exists(config_path):
-        raise Exception("No config file exist. Please create it first")
+        with open(config_path, "w") as file:
+           json.dump(DEFAULT_CONFIG, file, indent=2)
     with open(config_path, "r") as file:
         user_config = json.load(file)
     config = DEFAULT_CONFIG.copy()

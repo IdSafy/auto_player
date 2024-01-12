@@ -103,7 +103,7 @@ def play_command(obj: AutoPlayer, continuous: bool, name_or_number: str, episode
     help="How many episodes you have already watched")
 @click.option('-t', '--test', default=False, is_flag=True,
     help="Print finded files but not add to state")
-@click.argument("name", required=True)
+@click.argument("name", required=False, default="")
 @click.pass_obj
 def add_command(obj: AutoPlayer, test: bool, name: str, **kwargs):
     app = obj
