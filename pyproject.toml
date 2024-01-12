@@ -1,0 +1,47 @@
+[project]
+name = "auto_player"
+readme = "README.md"
+
+dependencies = ["Click"]
+requires-python = ">=3.10"
+version = "0.1.0"
+description = "An app to keep track of watched episodes of shows"
+authors = [{ name = "IdSaf", email = "idolarod1@gmail.com" }]
+license = { text = "MIT" }
+
+[project.urls]
+Home = "https://github.com/ISafd/auto_player.git"
+
+
+[project.optional-dependencies]
+dev = [
+  "pre-commit",
+  "black",
+  "autoflake",
+  "isort",
+  "flake8>=7.0.0",
+  "Flake8-pyproject>=1.2.3",
+  "yapf>=0.40.2",
+]
+test = ["pytest", "pytest-cov"]
+
+[project.scripts]
+auto-player = "auto_player.cli:cli"
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report html --cov-report term-missing"
+
+[tool.coverage.run]
+source = ["src/auto_player"]
+
+[tool.pdm]
+package-type = "library"
+plugins = ["sync-pre-commit-lock"]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.flake8]
+max-line-length = 120
+per-file-ignores = ['__init__.py:F401']

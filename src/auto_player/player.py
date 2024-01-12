@@ -1,9 +1,10 @@
 import os
 import subprocess
 from dataclasses import dataclass
-from typing import Union, Optional, List
+from typing import List, Union
 
 from .show import EpisodeSet
+
 
 @dataclass
 class PlayStatus:
@@ -16,16 +17,22 @@ class Player:
     def play(self, episode_set: EpisodeSet) -> PlayStatus:
         ...
 
+
 DEFAULT_ENVIRONMENT_VARIABLE_NAME = "PLAYER_STRING"
 
+
 class EnvironmentPlayer(Player):
-    def __init__(self, environment_variable_name: str = DEFAULT_ENVIRONMENT_VARIABLE_NAME):
+    def __init__(
+        self, environment_variable_name: str = DEFAULT_ENVIRONMENT_VARIABLE_NAME
+    ):
         self.environment_variable_name = environment_variable_name
 
     def _get_player_string(self) -> str:
         player_string = os.environ.get(self.environment_variable_name, None)
         if player_string is None:
-            raise Exception(f"Varialble '{self.environment_variable_name}' is undefined")
+            raise Exception(
+                f"Varialble '{self.environment_variable_name}' is undefined"
+            )
         return player_string
 
     def play(self, episode_set: EpisodeSet) -> PlayStatus:
@@ -40,13 +47,15 @@ class EnvironmentPlayer(Player):
         status = PlayStatus(failed=failed, return_code=process.returncode)
         return status
 
+
 class CunstuctorPlayer(Player):
-    def __init__(self,
+    def __init__(
+        self,
         base: List[str],
         video_file_wrapper: List[str],
         audio_file_wrapper: List[str],
         subtitles_file_wrapper: List[str],
-        appendix: List[str] = list()
+        appendix: List[str] = list(),
     ):
         self.base = base
         self.video_file_wrapper = video_file_wrapper
@@ -56,7 +65,10 @@ class CunstuctorPlayer(Player):
 
     def _construct_command(self, episode_set: EpisodeSet) -> List[str]:
         command = []
-        list_format = lambda l: list(map(lambda x: x.format(episode=episode_set), l))
+
+        def list_format(templates: list[str]) -> list[str]:
+            return list(map(lambda x: x.format(episode=episode_set), templates))
+
         command += list_format(self.base)
         command += list_format(self.video_file_wrapper)
         if episode_set.audio_file is not None:

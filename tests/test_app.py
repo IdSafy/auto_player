@@ -1,7 +1,9 @@
 import json
+
 import pytest
 
 from auto_player.app import AutoPlayer, create_auto_player
+
 
 @pytest.fixture
 def config_file(tmpdir):
@@ -25,6 +27,7 @@ def config_file(tmpdir):
     with open(path, "w") as file:
         json.dump(config, file)
     return path
+
 
 def test_app_creation(config_file):
     app = create_auto_player(config_path=config_file)

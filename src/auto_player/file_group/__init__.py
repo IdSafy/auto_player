@@ -1,11 +1,13 @@
-from typing import Iterator
 from enum import Enum
 from pathlib import Path
+from typing import Iterator
+
 
 class FilesGroupType(Enum):
     VIDEO = 1
     AUDIO = 2
     SUBTITLES = 3
+
 
 class FilesGroup:
     def __init__(self, group_type: FilesGroupType):

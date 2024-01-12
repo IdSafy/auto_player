@@ -1,8 +1,9 @@
-from typing import Optional
 from dataclasses import dataclass
+from typing import Optional
 
-from . import Show, EpisodeSet
 from ..file_group import FilesGroup
+from . import EpisodeSet, Show
+
 
 @dataclass
 class StatefullShowWrapper:

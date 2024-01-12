@@ -1,12 +1,12 @@
-import os
-import json
 import importlib
+import json
+import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
-from .base import AutoPlayer, Error, Rezult
 from ..backend import Backend
 from ..player import Player
+from .base import AutoPlayer, Error, Rezult
 
 DEFAULT_CONFIG_PATH = f"{Path.home()}/.autoplayer"
 
@@ -15,27 +15,29 @@ DEFAULT_CONFIG = {
         "class": "auto_player.backend.localfilebackend.LocalfileBackend",
         "params": {},
     },
-     "player": {
-         "class": "auto_player.player.CunstuctorPlayer",
-         "params": {
-             "base": ["echo"],
-             "video_file_wrapper": ["{episode.video_file}"],
-             "audio_file_wrapper": ["{episode.audio_file}"],
-             "subtitles_file_wrapper": ["{episode.subtitles_file}"],
-             "appendix": [],
-         },
-     },
+    "player": {
+        "class": "auto_player.player.CunstuctorPlayer",
+        "params": {
+            "base": ["echo"],
+            "video_file_wrapper": ["{episode.video_file}"],
+            "audio_file_wrapper": ["{episode.audio_file}"],
+            "subtitles_file_wrapper": ["{episode.subtitles_file}"],
+            "appendix": [],
+        },
+    },
 }
+
 
 def read_config(config_path: str) -> Dict[str, Any]:
     if not os.path.exists(config_path):
         with open(config_path, "w") as file:
-           json.dump(DEFAULT_CONFIG, file, indent=2)
+            json.dump(DEFAULT_CONFIG, file, indent=2)
     with open(config_path, "r") as file:
         user_config = json.load(file)
     config = DEFAULT_CONFIG.copy()
     config.update(user_config)
     return config
+
 
 def get_class(class_path: str) -> type:
     class_name = class_path.split(".")[-1]
@@ -43,6 +45,7 @@ def get_class(class_path: str) -> type:
     module = importlib.import_module(class_module)
     class_object = getattr(module, class_name)
     return class_object
+
 
 def create_backend(config: Dict[str, Any], session: str) -> Backend:
     backend_config = config["backend"]
@@ -53,6 +56,7 @@ def create_backend(config: Dict[str, Any], session: str) -> Backend:
         return backend
     raise Exception("Provided backend class is not a Backend")
 
+
 def create_player(config: Dict[str, Any]) -> Player:
     backend_config = config["player"]
     class_path = backend_config["class"]
@@ -62,7 +66,10 @@ def create_player(config: Dict[str, Any]) -> Player:
         return player
     raise Exception("Provided player class is not a Player")
 
-def create_auto_player(config_path: str = DEFAULT_CONFIG_PATH, session: str = "default") -> AutoPlayer:
+
+def create_auto_player(
+    config_path: str = DEFAULT_CONFIG_PATH, session: str = "default"
+) -> AutoPlayer:
     config = read_config(config_path)
     backend = create_backend(config, session)
     player = create_player(config)

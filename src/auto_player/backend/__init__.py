@@ -1,5 +1,6 @@
 from ..state import State
 
+
 class Backend:
     NAME = "undefined"
 

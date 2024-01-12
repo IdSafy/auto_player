@@ -3,11 +3,14 @@ from typing import List, Optional
 
 from .show.statefull import StatefullShowWrapper
 
+
 @dataclass
 class State:
     shows: List[StatefullShowWrapper] = field(default_factory=list)
 
-    def get_show_by_number(self, number: int, correct_zero: bool = True) -> Optional[StatefullShowWrapper]:
+    def get_show_by_number(
+        self, number: int, correct_zero: bool = True
+    ) -> Optional[StatefullShowWrapper]:
         if correct_zero:
             number = number - 1
         show = self.shows[number] if number < len(self.shows) else None

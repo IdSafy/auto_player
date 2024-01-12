@@ -1,29 +1,34 @@
 from collections import OrderedDict
-from typing import List, Dict, Any, Optional, TypeVar, Union
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, TypeVar, Union
 
-from ..file_group import FilesGroupType, FilesGroup
+from ..backend import Backend
+from ..file_group import FilesGroup, FilesGroupType
+from ..player import Player
 from ..show import Show
 from ..show.statefull import StatefullShowWrapper
-from ..backend import Backend
-from ..player import Player
-from .file_group_factory import make_files_group, make_counter
+from .file_group_factory import make_counter, make_files_group
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 @dataclass
 class Error:
     msg: Optional[str] = None
 
+
 Rezult = Union[Error, T]
+
 
 @dataclass
 class ShowCommandWrapper:
     show: StatefullShowWrapper
-    app: 'AutoPlayer'
+    app: "AutoPlayer"
 
     def play(self, episode_number: int = -1, correct_zero: bool = True) -> Rezult[None]:
-        return self.app.play(show=self.show, episode_number=episode_number, correct_zero=correct_zero)
+        return self.app.play(
+            show=self.show, episode_number=episode_number, correct_zero=correct_zero
+        )
 
     def info(self) -> Rezult[Dict[str, Any]]:
         info = OrderedDict()
@@ -31,6 +36,7 @@ class ShowCommandWrapper:
         info["length"] = len(self.show)
         info["watched"] = self.show.counter
         directory = self.show.video_group.directory
+
         def files_group_info(files_group: Optional[FilesGroup]) -> Dict[str, Any]:
             group_info: Dict[str, Any] = OrderedDict()
             if files_group is None:
@@ -44,6 +50,7 @@ class ShowCommandWrapper:
                 file_info["relative_path"] = str(relative_path)
                 group_info["files"].append(file_info)
             return group_info
+
         info["video_group"] = files_group_info(self.show.video_group)
         info["audio_group"] = files_group_info(self.show.audio_group)
         info["subtitles_group"] = files_group_info(self.show.subtitles_group)
@@ -55,7 +62,9 @@ class ShowCommandWrapper:
     def edit(self, test: bool = False, **kwargs) -> Rezult[None]:
         video_group = make_files_group(group_type=FilesGroupType.VIDEO, **kwargs)
         audio_group = make_files_group(group_type=FilesGroupType.AUDIO, **kwargs)
-        subtitles_group = make_files_group(group_type=FilesGroupType.SUBTITLES, **kwargs)
+        subtitles_group = make_files_group(
+            group_type=FilesGroupType.SUBTITLES, **kwargs
+        )
         counter = make_counter(**kwargs)
 
         if video_group is not None:
@@ -72,17 +81,27 @@ class ShowCommandWrapper:
 
         return None
 
+
 class AutoPlayer:
     def __init__(self, backend: Backend, player: Player):
         self.backend = backend
         self.player = player
         self.state = backend.load()
 
-    def play(self, show: StatefullShowWrapper, episode_number: int = -1, correct_zero: bool = True) -> Rezult[None]:
+    def play(
+        self,
+        show: StatefullShowWrapper,
+        episode_number: int = -1,
+        correct_zero: bool = True,
+    ) -> Rezult[None]:
         if correct_zero:
             corrected_episode_number = episode_number - 1
         try:
-            episode_set = show.next_episode() if episode_number == -1 else show[corrected_episode_number]
+            episode_set = (
+                show.next_episode()
+                if episode_number == -1
+                else show[corrected_episode_number]
+            )
         except Exception as e:
             return Error(str(e))
         status = self.player.play(episode_set)
@@ -99,7 +118,7 @@ class AutoPlayer:
     def get_show(self, name_or_number: str) -> Rezult[ShowCommandWrapper]:
         try:
             number = int(name_or_number)
-        except Exception as e:
+        except Exception:
             number = -1
         if number > 0:
             show = self.state.get_show_by_number(number)
@@ -111,18 +130,27 @@ class AutoPlayer:
         show_wrapper = ShowCommandWrapper(app=self, show=show)
         return show_wrapper
 
-    def add_show(self, name: str, test: bool = False, **kwargs) -> Rezult[ShowCommandWrapper]:
+    def add_show(
+        self, name: str, test: bool = False, **kwargs
+    ) -> Rezult[ShowCommandWrapper]:
         video_group = make_files_group(group_type=FilesGroupType.VIDEO, **kwargs)
         audio_group = make_files_group(group_type=FilesGroupType.AUDIO, **kwargs)
-        subtitles_group = make_files_group(group_type=FilesGroupType.SUBTITLES, **kwargs)
+        subtitles_group = make_files_group(
+            group_type=FilesGroupType.SUBTITLES, **kwargs
+        )
         counter = make_counter(**kwargs)
 
         if video_group is None:
             return Error("Video files not specified")
         if counter is None:
             counter = 0
-   
-        show = Show(name=name, video_group=video_group, audio_group=audio_group, subtitles_group=subtitles_group)
+
+        show = Show(
+            name=name,
+            video_group=video_group,
+            audio_group=audio_group,
+            subtitles_group=subtitles_group,
+        )
         statefull_show = StatefullShowWrapper(show=show, counter=counter)
 
         if not test:

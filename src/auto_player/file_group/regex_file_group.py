@@ -1,10 +1,11 @@
-from typing import Pattern, Iterator
 from pathlib import Path
+from typing import Iterator, Pattern
 
 from . import FilesGroup, FilesGroupType
 
+
 class RegexFileGroup(FilesGroup):
-    def __init__(self, group_type: FilesGroupType, directory: Path, regex = Pattern[str]):
+    def __init__(self, group_type: FilesGroupType, directory: Path, regex=Pattern[str]):
         super().__init__(group_type=group_type)
         self._directory = directory
         self.regex = regex

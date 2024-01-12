@@ -1,8 +1,9 @@
 import os
 import pickle
 
-from . import Backend
 from ..state import State
+from . import Backend
+
 
 class LocalfileBackend(Backend):
     NAME = "localfile"
