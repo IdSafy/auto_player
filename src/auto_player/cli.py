@@ -1,3 +1,4 @@
+from pathlib import Path
 import sys
 from typing import Any, Dict, TypeVar, Union
 
@@ -26,13 +27,17 @@ def print_files_group(files_group_info: Dict[str, Any], name: str) -> None:
         print(f"\t\t{file_info['relative_path']}")
 
 
-def print_show_info(show_info: Dict[str, Any]) -> None:
+def print_show_info(show_info: Dict[str, Any], full: bool) -> None:
     print(f"Name: {show_info['name']}")
-    print(f"Length: {show_info['length']}")
-    print(f"Watched: {show_info['watched']}")
-    print_files_group(show_info["video_group"], "video")
-    print_files_group(show_info["audio_group"], "audio")
-    print_files_group(show_info["subtitles_group"], "subtitles")
+    print(f"Watched: {show_info['watched']}/{show_info['length']}")
+    if full:
+        print_files_group(show_info["video_group"], "video")
+        print_files_group(show_info["audio_group"], "audio")
+        print_files_group(show_info["subtitles_group"], "subtitles")
+
+
+def get_current_dir_normalized_name() -> str:
+    return Path(".").resolve().name
 
 
 T = TypeVar("T")
@@ -76,7 +81,7 @@ def info_command(obj: AutoPlayer, full: bool, name_or_number: str):
     app = obj
     show = command_rezult_handler(app.get_show(name_or_number))
     info = command_rezult_handler(show.info())
-    print_show_info(info)
+    print_show_info(info, full=full)
 
 
 @cli.command("play", help="Play next episode in show")
@@ -135,14 +140,14 @@ def play_command(obj: AutoPlayer, continuous: bool, name_or_number: str, episode
     is_flag=True,
     help="Print finded files but not add to state",
 )
-@click.argument("name", required=False, default="")
+@click.argument("name", required=False, default=get_current_dir_normalized_name())
 @click.pass_obj
 def add_command(obj: AutoPlayer, test: bool, name: str, **kwargs):
     app = obj
     rezult = app.add_show(test=test, name=name, **kwargs)
     show = command_rezult_handler(rezult)
     info = command_rezult_handler(show.info())
-    print_show_info(info)
+    print_show_info(info, full=True)
 
 
 @cli.command("edit", help="Edit show")
