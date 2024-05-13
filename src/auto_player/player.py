@@ -67,7 +67,9 @@ class CunstuctorPlayer(Player):
         command = []
 
         def list_format(templates: list[str]) -> list[str]:
-            return list(map(lambda x: x.format(episode=episode_set), templates))
+            return list(
+                map(lambda x: x.format(episode=episode_set.fix_simlinks()), templates)
+            )
 
         command += list_format(self.base)
         command += list_format(self.video_file_wrapper)

@@ -28,6 +28,21 @@ class EpisodeSet:
     audio_file: Optional[Path] = None
     subtitles_file: Optional[Path] = None
 
+    @staticmethod
+    def _fix_simlink_for_path(path: Path) -> Path:
+        return path.resolve().relative_to(Path(".").resolve())
+
+    def fix_simlinks(self) -> "EpisodeSet":
+        return EpisodeSet(
+            video_file=self._fix_simlink_for_path(self.video_file),
+            audio_file=self._fix_simlink_for_path(self.audio_file)
+            if self.audio_file
+            else None,
+            subtitles_file=self._fix_simlink_for_path(self.subtitles_file)
+            if self.subtitles_file
+            else None,
+        )
+
 
 @dataclass
 class Show:
